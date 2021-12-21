@@ -1,0 +1,178 @@
+mysql> use travel;
+Database changed
+mysql> show tables;
++------------------+
+| Tables_in_travel |
++------------------+
+| passenger        |
+| price            |
++------------------+
+2 rows in set (0.89 sec)
+
+mysql> select *from passenger;
++----------------+----------+--------+---------------+------------------+----------+----------+
+| Passenger_name | Category | Gender | Boarding_City | Destination_City | Distance | Bus_Type |
++----------------+----------+--------+---------------+------------------+----------+----------+
+| Sejal          | AC       | F      | Bengaluru     | Chennai          |      350 | Sleeper  |
+| Anmol          | Non-AC   | M      | Mumbai        | Hyderabad        |      700 | Sitting  |
+| Pallavi        | AC       | F      | panaji        | Bengaluru        |      600 | Sleeper  |
+| Khusboo        | AC       | F      | Chennai       | Mumbai           |     1500 | Sleeper  |
+| Udit           | Non-AC   | M      | Trivandrum    | panaji           |     1000 | Sleeper  |
+| Ankur          | AC       | M      | Nagpur        | Hyderabad        |      500 | Sitting  |
+| Hemant         | Non-AC   | M      | panaji        | Mumbai           |      700 | Sleeper  |
+| Manish         | Non-AC   | M      | Hyderabad     | Bengaluru        |      500 | Sitting  |
+| Piyush         | AC       | M      | Pune          | Nagpur           |      700 | Sitting  |
++----------------+----------+--------+---------------+------------------+----------+----------+
+9 rows in set (0.03 sec)
+
+
+mysql> select * from price;
++----------+----------+-------+
+| Bus_Type | Distance | Price |
++----------+----------+-------+
+| Sleeper  |      350 |   770 |
+| Sleeper  |      500 |  1100 |
+| Sleeper  |      600 |  1320 |
+| Sleeper  |      700 |  1540 |
+| Sleeper  |     1000 |  2200 |
+| Sleeper  |     1200 |  2640 |
+| Sleeper  |      350 |   434 |
+| Sitting  |      500 |   620 |
+| Sitting  |      500 |   620 |
+| Sitting  |      600 |   744 |
+| Sitting  |      700 |   868 |
+| Sitting  |     1000 |  1240 |
+| Sitting  |     1200 |  1488 |
+| Sitting  |     1500 |  1860 |
++----------+----------+-------+
+
+Solutions:-
+
+1. How many female and how many male passengers travelled for a minimum distance of 600 KM s?
+
+mysql> select gender,count(*) from passenger where distance>=600 group by gender;
++--------+----------+
+| gender | count(*) |
++--------+----------+
+| M      |        4 |
+| F      |        2 |
++--------+----------+
+
+2. Find the minimum ticket price for Sleeper Bus. 
+
+mysql> select min(price)from price where Bus_type='sleeper';
++------------+
+| min(price) |
++------------+
+|        434 |
++------------+
+
+3. Select passenger names whose names start with character 'S'
+
+mysql> select * from passenger where passenger_name like 's%';
+
++----------------+----------+--------+---------------+------------------+----------+----------+
+| Passenger_name | Category | Gender | Boarding_City | Destination_City | Distance | Bus_Type |
++----------------+----------+--------+---------------+------------------+----------+----------+
+| Sejal          | AC       | F      | Bengaluru     | Chennai          |      350 | Sleeper  |
++----------------+----------+--------+---------------+------------------+----------+----------+
+
+4. Calculate price charged for each passenger displaying Passenger name, Boarding City, Destination 
+City, Bus_Type, Price in the output.
+
+mysql> select passenger_name,p1.boarding_city,p1.destination_city,p1.bus_type,p2.price from passenger p1,price p2 where p1.distance=p2.distance and p1.bus_type=p2.bus_type;
++----------------+---------------+------------------+----------+-------+
+| passenger_name | boarding_city | destination_city | bus_type | price |
++----------------+---------------+------------------+----------+-------+
+| Sejal          | Bengaluru     | Chennai          | Sleeper  |   770 |
+| Pallavi        | panaji        | Bengaluru        | Sleeper  |  1320 |
+| Hemant         | panaji        | Mumbai           | Sleeper  |  1540 |
+| Udit           | Trivandrum    | panaji           | Sleeper  |  2200 |
+| Sejal          | Bengaluru     | Chennai          | Sleeper  |   434 |
+| Manish         | Hyderabad     | Bengaluru        | Sitting  |   620 |
+| Ankur          | Nagpur        | Hyderabad        | Sitting  |   620 |
+| Manish         | Hyderabad     | Bengaluru        | Sitting  |   620 |
+| Ankur          | Nagpur        | Hyderabad        | Sitting  |   620 |
+| Piyush         | Pune          | Nagpur           | Sitting  |   868 |
+| Anmol          | Mumbai        | Hyderabad        | Sitting  |   868 |
++----------------+---------------+------------------+----------+-------+
+
+5. What is the passenger name and his/her ticket price who travelled in Sitting bus for a distance of 1000 
+KMs.
+
+mysql> select p1.passenger_name ,p2.price from passenger p1,price p2 where p1.distance=1000 and p1.Bus_type='sitting';
+Empty set (0.00 sec)
+
+6. What will be the Sitting and Sleeper bus charge for Pallavi to travel from Bangalore to Panaji?
+
+mysql> SELECT DISTINCT p1.Passenger_name, p1.Boarding_city as Destination_city, p1.Destination_city as Boardng_city, p1.Bus_type, p2.Price FROM passenger p1, price p2 WHERE Passenger_name = 'Pallavi' and p1.Distance = p2.Distance;
++----------------+------------------+--------------+----------+-------+
+| Passenger_name | Destination_city | Boardng_city | Bus_type | Price |
++----------------+------------------+--------------+----------+-------+
+| Pallavi        | panaji           | Bengaluru    | Sleeper  |  1320 |
+| Pallavi        | panaji           | Bengaluru    | Sleeper  |   744 |
++----------------+------------------+--------------+----------+-------+
+
+7. List the distances from the "Passenger" table which are unique (non-repeated distances) in 
+descending order.
+
+mysql> SELECT DISTINCT distance FROM passenger ORDER BY Distance desc;
++----------+
+| distance |
++----------+
+|     1500 |
+|     1000 |
+|      700 |
+|      600 |
+|      500 |
+|      350 |
++----------+
+6 rows in set (0.00 sec)
+
+8. Display the passenger name and percentage of distance travelled by that passenger from the total 
+distance travelled by all passengers without using user variables. 
+
+mysql> SELECT Passenger_name, Distance * 100.0/ (SELECT SUM(Distance) FROM passenger)FROM passenger GROUP BY Distance;
++----------------+---------------------------------------------------------+
+| Passenger_name | Distance * 100.0/ (SELECT SUM(Distance) FROM passenger) |
++----------------+---------------------------------------------------------+
+| Sejal          |                                                 5.34351 |
+| Anmol          |                                                10.68702 |
+| Pallavi        |                                                 9.16031 |
+| Khusboo        |                                                22.90076 |
+| Udit           |                                                15.26718 |
+| Ankur          |                                                 7.63359 |
++----------------+---------------------------------------------------------+
+6 rows in set (0.07 sec)
+
+9. Create a view to see all passengers who travelled in AC Bus.
+mysql> CREATE VIEW p_view AS SELECT * FROM passenger WHERE Category = 'AC';SELECT * FROM p_view;
+Query OK, 0 rows affected (0.80 sec)
+
++----------------+----------+--------+---------------+------------------+----------+----------+
+| Passenger_name | Category | Gender | Boarding_City | Destination_City | Distance | Bus_Type |
++----------------+----------+--------+---------------+------------------+----------+----------+
+| Sejal          | AC       | F      | Bengaluru     | Chennai          |      350 | Sleeper  |
+| Pallavi        | AC       | F      | panaji        | Bengaluru        |      600 | Sleeper  |
+| Khusboo        | AC       | F      | Chennai       | Mumbai           |     1500 | Sleeper  |
+| Ankur          | AC       | M      | Nagpur        | Hyderabad        |      500 | Sitting  |
+| Piyush         | AC       | M      | Pune          | Nagpur           |      700 | Sitting  |
++----------------+----------+--------+---------------+------------------+----------+----------+
+5 rows in set (0.03 sec)
+
+10. Create a stored procedure to find total passengers traveled using Sleeper buses
+
+11. Display 5 records at one time
+
+mysql> SELECT * FROM passenger LIMIT 5;
++----------------+----------+--------+---------------+------------------+----------+----------+
+| Passenger_name | Category | Gender | Boarding_City | Destination_City | Distance | Bus_Type |
++----------------+----------+--------+---------------+------------------+----------+----------+
+| Sejal          | AC       | F      | Bengaluru     | Chennai          |      350 | Sleeper  |
+| Anmol          | Non-AC   | M      | Mumbai        | Hyderabad        |      700 | Sitting  |
+| Pallavi        | AC       | F      | panaji        | Bengaluru        |      600 | Sleeper  |
+| Khusboo        | AC       | F      | Chennai       | Mumbai           |     1500 | Sleeper  |
+| Udit           | Non-AC   | M      | Trivandrum    | panaji           |     1000 | Sleeper  |
++----------------+----------+--------+---------------+------------------+----------+----------+
+5 rows in set (0.00 sec)
+
